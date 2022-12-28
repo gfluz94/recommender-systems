@@ -3,7 +3,7 @@ import boto3
 
 from recsys.utils.errors import EnvironmentVariablesMissing, S3ClientError
 
-SUCCESS_STATUS_CODE = 200
+SUCCESS_STATUS_CODE = "200"
 
 
 def fetch_s3_files(
