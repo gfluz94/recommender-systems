@@ -1,8 +1,10 @@
 import os
 from enum import Enum
 from argparse import ArgumentParser
+import pandas as pd
 
 from recsys.utils.aws import fetch_s3_files
+from recsys.utils.logging import logger
 
 
 class AlgorithmType(Enum):
@@ -16,6 +18,7 @@ RATINGS_FILE = "ratings.csv"
 
 
 if __name__ == "__main__":
+    logger.info("Defining parameters...")
     parser = ArgumentParser(
         description="Input parameters for designing and building a recommender system."
     )
@@ -55,10 +58,13 @@ if __name__ == "__main__":
         default="AWS_SECRET_KEY",
     )
     args = parser.parse_args()
+    logger.info("Parameters defined!")
     
+    logger.info("Finding and reading raw data...")
     DATA_FOLDER = os.path.join(os.curdir, args.data_folder)
     FILES_IN_FOLDER = os.listdir(DATA_FOLDER)
     if MOVIES_FILE not in FILES_IN_FOLDER or RATINGS_FILE not in FILES_IN_FOLDER:
+        logger.info(f"Data not found in {DATA_FOLDER}. Downloading from `{args.s3_data_bucket}` S3 bucket...")
         aws_access_key = os.getenv(key=args.aws_access_key_env)
         aws_secret_key = os.getenv(key=args.aws_secret_key_env)
         fetch_s3_files(
@@ -67,6 +73,7 @@ if __name__ == "__main__":
             aws_access_key=aws_access_key,
             aws_secret_key=aws_secret_key,
         )
-        
-    
-    
+        logger.info(f"Datasets successfully uploaded to local folder {DATA_FOLDER}...")
+    df_ratings = pd.read_csv(os.path.join(DATA_FOLDER, RATINGS_FILE))
+    df_movies = pd.read_csv(os.path.join(DATA_FOLDER, MOVIES_FILE))
+    logger.info("Dataframes imported!")
