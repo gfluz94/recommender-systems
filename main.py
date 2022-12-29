@@ -5,6 +5,7 @@ import pandas as pd
 
 from recsys.utils.aws import fetch_s3_files
 from recsys.utils.logging import logger
+from recsys.utils.errors import EnvironmentVariablesMissing
 
 
 class AlgorithmType(Enum):
@@ -41,7 +42,7 @@ if __name__ == "__main__":
         metavar="N",
         type=str,
         help="Name of the bucket in AWS S3 where data is currelty stored.",
-        default="gfluz",
+        default="data-ml-gfluz94",
     )
     parser.add_argument(
         "--aws-access-key-env",
@@ -67,6 +68,10 @@ if __name__ == "__main__":
         logger.info(f"Data not found in {DATA_FOLDER}. Downloading from `{args.s3_data_bucket}` S3 bucket...")
         aws_access_key = os.getenv(key=args.aws_access_key_env)
         aws_secret_key = os.getenv(key=args.aws_secret_key_env)
+        if not aws_access_key or not aws_secret_key:
+            raise EnvironmentVariablesMissing(
+              "AWS Credentials not set accordingly.`"
+            )
         fetch_s3_files(
             bucket_name=args.s3_data_bucket,
             target_folder=DATA_FOLDER,
