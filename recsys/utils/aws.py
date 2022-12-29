@@ -1,33 +1,32 @@
 import os
 import boto3
 
-from recsys.utils.errors import EnvironmentVariablesMissing, S3ClientError
+from recsys.utils.errors import S3ClientError
 
 SUCCESS_STATUS_CODE = "200"
 
 
 def fetch_s3_files(
     bucket_name: str,
-    target_folder: str
+    target_folder: str,
+    aws_access_key: str,
+    aws_secret_key: str,
 ) -> None:
     """Function that fetches data from specified S3 bucket and saves it to the target folder.
     
         Args:
             bucket_name (str): Name of the bucket in S3 where files are nested
             target_folder (str): Patht to folder where data is going to be saved.
+            aws_access_key (str): AWS Access Key in order to fetch data from S3
+            aws_secret_key (str): AWS Secret Key in order to fetch data from S3
     
         Raises:
-            SolverUnsuccessful: In case optimization encounters a problem along the way.
+            S3ClientError: Download from S3 fails - Status Code is different from 200.
     """
-    ACCESS_KEY = os.getenv(key="AWS_ACCESS_KEY")
-    SECRET_KEY = os.getenv(key="AWS_SECRET_KEY")
-    if not ACCESS_KEY or not SECRET_KEY:
-        raise EnvironmentVariablesMissing(
-          "AWS Credentials not set in environment variables `ACCESS_KEY` and `SECRET_KEY`"
-        )
-        client = boto3.client(
-            "s3", aws_access_key_id=ACCESS_KEY, aws_secret_access_key=SECRET_KEY
-        )
+
+    client = boto3.client(
+        "s3", aws_access_key_id=aws_access_key, aws_secret_access_key=aws_secret_key
+    )
     content_response = client.list_objects(Bucket=bucket_name)
     if content_response["ResponseMetadata"]["HTTPStatusCode"] != SUCCESS_STATUS_CODE:
         raise S3ClientError(
