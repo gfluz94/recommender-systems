@@ -12,7 +12,7 @@ class AlgorithmType(Enum):
     CollaborativeFiltering = 1
     MatrixFactorization = 2
     ContentBased = 3
-    
+
 
 MOVIES_FILE = "movies.csv"
 RATINGS_FILE = "ratings.csv"
@@ -60,18 +60,18 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     logger.info("Parameters defined!")
-    
+
     logger.info("Finding and reading raw data...")
     DATA_FOLDER = os.path.join(os.curdir, args.data_folder)
     FILES_IN_FOLDER = os.listdir(DATA_FOLDER)
     if MOVIES_FILE not in FILES_IN_FOLDER or RATINGS_FILE not in FILES_IN_FOLDER:
-        logger.info(f"Data not found in {DATA_FOLDER}. Downloading from `{args.s3_data_bucket}` S3 bucket...")
+        logger.info(
+            f"Data not found in {DATA_FOLDER}. Downloading from `{args.s3_data_bucket}` S3 bucket..."
+        )
         aws_access_key = os.getenv(key=args.aws_access_key_env)
         aws_secret_key = os.getenv(key=args.aws_secret_key_env)
         if not aws_access_key or not aws_secret_key:
-            raise EnvironmentVariablesMissing(
-              "AWS Credentials not set accordingly.`"
-            )
+            raise EnvironmentVariablesMissing("AWS Credentials not set accordingly.`")
         fetch_s3_files(
             bucket_name=args.s3_data_bucket,
             target_folder=DATA_FOLDER,
