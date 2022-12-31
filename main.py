@@ -1,5 +1,5 @@
 import os
-from enum import Enum
+from enum import Enum, auto
 from argparse import ArgumentParser
 import pandas as pd
 
@@ -9,9 +9,9 @@ from recsys.utils.errors import EnvironmentVariablesMissing
 
 
 class AlgorithmType(Enum):
-    CollaborativeFiltering = 1
-    MatrixFactorization = 2
-    ContentBased = 3
+    CollaborativeFiltering = auto()
+    MatrixFactorization = auto()
+    ContentBased = auto()
 
 
 MOVIES_FILE = "movies.csv"
