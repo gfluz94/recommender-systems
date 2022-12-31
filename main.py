@@ -82,3 +82,10 @@ if __name__ == "__main__":
     df_ratings = pd.read_csv(os.path.join(DATA_FOLDER, RATINGS_FILE))
     df_movies = pd.read_csv(os.path.join(DATA_FOLDER, MOVIES_FILE))
     logger.info("Dataframes imported!")
+
+    if args.algorithm == AlgorithmType.CollaborativeFiltering.name:
+        pass
+    elif args.algorithm == AlgorithmType.MatrixFactorization.name:
+        pass
+    elif args.algorithm == AlgorithmType.ContentBased.name:
+        pass
