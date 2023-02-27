@@ -6,7 +6,7 @@ format:
 	python3 -m black .
 
 lint:
-	python3 -m pylint --disable=R,C recsys/**/*.py
+	python3 -m pylint --disable=R,C recsys
 
 test:
 	python3 -m pytest -vv --cov
