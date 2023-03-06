@@ -59,11 +59,11 @@ def get_outliers(
     to_remove = set()
     if lower_boundary:
         to_remove |= set(
-            df.loc[df[values_column] <= lower_boundary, target_column].tolist()
+            df.loc[df[values_column] < lower_boundary, target_column].tolist()
         )
     if upper_boundary:
         to_remove |= set(
-            df.loc[df[values_column] >= upper_boundary, target_column].tolist()
+            df.loc[df[values_column] > upper_boundary, target_column].tolist()
         )
     return list(to_remove)
 
@@ -89,9 +89,9 @@ def remove_extreme_movies_and_users(
     """
 
     n_ratings = "n_ratings"
-    target_columns = [movie_id_column, user_id_column]
+    target_columns = [user_id_column, movie_id_column]
     for target_column, boundaries in zip(
-        target_columns, [movie_ratings_boundaries, user_ratings_boundaries]
+        target_columns, [user_ratings_boundaries, movie_ratings_boundaries]
     ):
         stats = summarize_ratings(
             ratings_df=ratings_df,
