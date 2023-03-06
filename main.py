@@ -4,6 +4,7 @@ from argparse import ArgumentParser
 import pandas as pd
 
 from recsys.utils.aws import fetch_s3_files
+from recsys.preprocessing import remove_extreme_movies_and_users
 from recsys.utils.logging import logger
 from recsys.utils.errors import EnvironmentVariablesMissing
 
@@ -58,6 +59,55 @@ if __name__ == "__main__":
         help="Name of the environment variable for AWS Secret Key.",
         default="AWS_SECRET_KEY",
     )
+    parser.add_argument(
+        "--movie-id-field",
+        metavar="N",
+        type=str,
+        help="Name of the column containing movie ids.",
+        default="movieId",
+    )
+    parser.add_argument(
+        "--user-id-field",
+        metavar="N",
+        type=str,
+        help="Name of the column containing user ids.",
+        default="userId",
+    )
+    parser.add_argument(
+        "--rating-field",
+        metavar="N",
+        type=str,
+        help="Name of the column containing movie ids.",
+        default="rating",
+    )
+    parser.add_argument(
+        "--movie-n-ratings-lower",
+        metavar="N",
+        type=int,
+        help="Lower threshhold for # of ratings a movie has got.",
+        default=3,
+    )
+    parser.add_argument(
+        "--movie-n-ratings-upper",
+        metavar="N",
+        type=int,
+        help="Lower threshhold for # of ratings a movie has got.",
+        default=None,
+    )
+    parser.add_argument(
+        "--user-n-ratings-lower",
+        metavar="N",
+        type=int,
+        help="Lower threshhold for # of ratings a user has given.",
+        default=None,
+    )
+    parser.add_argument(
+        "--user-n-ratings-upper",
+        metavar="N",
+        type=int,
+        help="Lower threshhold for # of ratings a user has given.",
+        default=10_000,
+    )
     args = parser.parse_args()
     logger.info("Parameters defined!")
 
@@ -82,6 +132,32 @@ if __name__ == "__main__":
     df_ratings = pd.read_csv(os.path.join(DATA_FOLDER, RATINGS_FILE))
     df_movies = pd.read_csv(os.path.join(DATA_FOLDER, MOVIES_FILE))
     logger.info("Dataframes imported!")
+
+    logger.info("General preprocessing started...")
+    n_users = df_ratings[args.user_id_field].nunique()
+    n_movies = df_ratings[args.movie_id_field].nunique()
+    logger.info("Dataset has %s unique movies and %s unique users.", n_movies, n_users)
+    logger.info(
+        "Getting rid of movies and users with too many and/or too few ratings..."
+    )
+    df_ratings = remove_extreme_movies_and_users(
+        ratings_df=df_ratings,
+        movie_id_column=args.movie_id_field,
+        user_id_column=args.user_id_field,
+        movie_ratings_boundaries=(
+            args.movie_n_ratings_lower,
+            args.movie_n_ratings_upper,
+        ),
+        user_ratings_boundaries=(args.user_n_ratings_lower, args.user_n_ratings_upper),
+    )
+    n_users = df_ratings[args.user_id_field].nunique()
+    n_movies = df_ratings[args.movie_id_field].nunique()
+    logger.info(
+        "After preprocessing, dataset has %s unique movies and %s unique users.",
+        n_movies,
+        n_users,
+    )
+    logger.info("General preprocessing finished!")
 
     if args.algorithm == AlgorithmType.CollaborativeFiltering.name:
         pass
