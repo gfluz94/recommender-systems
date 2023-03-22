@@ -12,3 +12,15 @@ class InvalidBucketName(Exception):
 
 class MissingCredentials(Exception):
     pass
+
+
+class SimilarityMethodNotAvailable(Exception):
+    pass
+
+
+class SimilarityMethodRequiresRating(Exception):
+    pass
+
+
+class ModelNotFittedYet(Exception):
+    pass
