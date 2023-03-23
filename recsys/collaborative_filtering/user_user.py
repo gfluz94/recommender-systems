@@ -30,7 +30,7 @@ class UserUserCollaborativeFiltering(object):
     Raises:
         AttributeError: Raised for predictions, when none of entries are passed to the method.
         UserNotPresent: Raised for cold-start problems, when user wasn't found in the training set.
-        ModelNotFittedYet: Raised for predictions, whem model hasn't been previously trained.
+        ModelNotFittedYet: Raised for predictions, when model hasn't been previously trained.
         SimilarityMethodNotAvailable: Raised during instantiation, when chosen method is not implemented.
         SimilarityMethodRequiresRating: Raised during instantiation, when chosen method requires a rating column.
     """
@@ -131,7 +131,7 @@ class UserUserCollaborativeFiltering(object):
         Raises:
             AttributeError: Raised for predictions, when none of entries are passed to the method.
             UserNotPresent: Raised for cold-start problems, when user wasn't found in the training set.
-            ModelNotFittedYet: Raised for predictions, whem model hasn't been previously trained.
+            ModelNotFittedYet: Raised for predictions, when model hasn't been previously trained.
         """
         if df is not None:
             return self._predict_df(df)
@@ -164,11 +164,7 @@ class UserUserCollaborativeFiltering(object):
                         - self._user_average_ratings[similar_user]
                     )
             else:
-                ratings.append(
-                    1
-                    if (similar_user, item) in self._ratings_by_user_item.keys()
-                    else 0
-                )
+                ratings.append(1 if item in self._items_by_user[similar_user] else 0)
         if len(ratings) == 0:
             predicted_score = 0.0 if self._rating_field_name else 0.5
         else:
@@ -185,7 +181,7 @@ class UserUserCollaborativeFiltering(object):
 
         Raises:
             UserNotPresent: Raised for cold-start problems, when user wasn't found in the training set.
-            ModelNotFittedYet: Raised for predictions, whem model hasn't been previously trained.
+            ModelNotFittedYet: Raised for predictions, when model hasn't been previously trained.
         """
         if self._user_similarity is None:
             raise ModelNotFittedYet("Plese call `.fit()` before predictions!")
@@ -217,10 +213,14 @@ class UserUserCollaborativeFiltering(object):
 
         Raises:
             UserNotPresent: Raised for cold-start problems, when user wasn't found in the training set.
-            ModelNotFittedYet: Raised for predictions, whem model hasn't been previously trained.
+            ModelNotFittedYet: Raised for predictions, when model hasn't been previously trained.
         """
         if self._user_similarity is None:
             raise ModelNotFittedYet("Plese call `.fit()` before predictions!")
+        if user not in self._user_similarity.keys():
+            raise UserNotPresent(
+                f"User {user} not found in training data... Cold-Start problem!"
+            )
 
         similar_users = self._user_similarity[user]
         items_not_to_consider = self._items_by_user[user]
