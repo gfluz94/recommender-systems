@@ -18,7 +18,8 @@ def _mse(x: List[float], y: List[float]):
 
 
 def _IoU(x: List[float], y: List[float]):
-    return np.mean(np.array(x) & np.array(y))
+    intersection = x[y == 1] == 1
+    return np.mean(intersection)
 
 
 class SimilarityMethod(Enum):
