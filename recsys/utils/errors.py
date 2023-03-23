@@ -24,3 +24,7 @@ class SimilarityMethodRequiresRating(Exception):
 
 class ModelNotFittedYet(Exception):
     pass
+
+
+class UserNotPresent(Exception):
+    pass
