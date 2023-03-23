@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 import pytest
@@ -13,3 +14,9 @@ def dummy_ratings_df() -> pd.DataFrame:
             "rating": np.random.uniform(low=0.5, high=5.0, size=11),
         }
     )
+
+
+@pytest.fixture(scope="module")
+def movielens_sample() -> pd.DataFrame:
+    wdir = os.path.abspath(os.curdir)
+    return pd.read_csv(os.path.join(wdir, "tests", "movielens_sample.csv"))
