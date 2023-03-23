@@ -6,6 +6,8 @@ from enum import Enum
 import numpy as np
 import pandas as pd
 
+from recsys.utils.logging import logger
+
 
 def _pearson_correlation(x: List[float], y: List[float]):
     return np.corrcoef(x=x, y=y)[0, 1]
@@ -67,6 +69,9 @@ class SimilarityComputer(object):
             Dict[int, List[int]]: Dictionary {reference: list of users/items}
         """
         if self._list_of_agg_by_ref is None:
+            logger.info(
+                "Generating list of `%s` for `%s`...", self._agg_col, self._ref_col
+            )
             self._list_of_agg_by_ref = (
                 df.groupby(self._ref_col)
                 .agg({self._agg_col: list})[self._agg_col]
@@ -83,12 +88,17 @@ class SimilarityComputer(object):
         Returns:
             Dict[int, List[int]]: Dictionary {(reference, user/item): rating}
         """
-        df_ = df.copy()
-        output = self._rating_col
-        if self._binary:
-            output = "binary_outcome"
-            df_[output] = 1.0
         if self._outcome_by_ref_and_agg is None:
+            logger.info(
+                "Generating list of outcomes for each (%s, %s) pair...",
+                self._agg_col,
+                self._ref_col,
+            )
+            df_ = df.copy()
+            output = self._rating_col
+            if self._binary:
+                output = "binary_outcome"
+                df_[output] = 1.0
             self._outcome_by_ref_and_agg = {
                 (int(ref), int(agg)): out
                 for ref, agg, out in df_[
@@ -126,6 +136,12 @@ class SimilarityComputer(object):
             multiplier = -1
 
         refs = list(self.get_list_of_agg_by_ref(df).keys())
+        logger.info(
+            "Searching top %d similar %ss for each %s",
+            maximum_similar,
+            self._ref_col,
+            self._ref_col,
+        )
         for idx, i in tqdm(enumerate(refs)):
             aggs_i = self.get_list_of_agg_by_ref(df)[i]
             set_aggs_i = set(aggs_i)
