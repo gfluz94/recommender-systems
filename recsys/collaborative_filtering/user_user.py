@@ -77,7 +77,7 @@ class UserUserCollaborativeFiltering(object):
 
         self._higher_better, self._sim_func = SimilarityMethod.__members__[
             self._similarity_method
-        ]
+        ].value
         self._sim_computer = SimilarityComputer(
             ref_col=self._user_id_field_name,
             agg_col=self._item_id_field_name,
