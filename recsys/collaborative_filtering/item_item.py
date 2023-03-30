@@ -107,28 +107,30 @@ class ItemItemCollaborativeFiltering(object):
             higher_better=self._higher_better,
         )
         self._users_by_item = self._sim_computer.get_list_of_agg_by_ref(df)
+        self._best_rated_item_by_user = {}
         if self._rating_field_name:
-            self._item_similarity, self._item_average_ratings = self._user_similarity
+            self._item_similarity, self._item_average_ratings = self._item_similarity
             self._ratings_by_item_user = self._sim_computer.get_outcome_by_ref_and_agg(
                 df
             )
-            self._best_rated_item_by_user = {}
             for user in set(
                 reduce(lambda a, b: a + b, list(self._users_by_item.values()))
             ):
                 self._best_rated_item_by_user[user] = sorted(
-                    filter(
-                        lambda x: user == x[0][1], self._ratings_by_item_user.items()
-                    ),
+                    [
+                        (i, r)
+                        for (i, u), r in self._ratings_by_item_user.items()
+                        if u == user
+                    ],
                     key=lambda x: -x[1],
-                )[0][0][0]
+                )[0][0]
         else:
             for user in set(
                 reduce(lambda a, b: a + b, list(self._users_by_item.values()))
             ):
-                self._best_rated_item_by_user[user] = filter(
-                    lambda x: user == x[0][1], self._ratings_by_item_user.items()
-                )[-1][0][0]
+                self._best_rated_item_by_user[user] = [
+                    i for (i, u), r in self._ratings_by_item_user.items() if u == user
+                ][-1]
 
         return self
 
@@ -188,7 +190,7 @@ class ItemItemCollaborativeFiltering(object):
         else:
             predicted_score = np.mean(ratings)
         if self._rating_field_name:
-            return predicted_score + self._user_average_ratings[user]
+            return predicted_score + self._item_average_ratings[user]
         return predicted_score
 
     def _predict_df(self, df: pd.DataFrame) -> pd.DataFrame:
