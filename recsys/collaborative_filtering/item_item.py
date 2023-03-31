@@ -91,6 +91,15 @@ class ItemItemCollaborativeFiltering(object):
 
         logger.info("Item-Item Collaborative Filtering model instantiated...")
 
+    @property
+    def item_similarity(self) -> Dict[int, List[int]]:
+        """Dictionary containing list of most similar items (values) to an item of interest (keys)."""
+        if self._item_similarity is None:
+            raise ModelNotFittedYet(
+                "Model needs to be trained... Please call `.fit()` first!"
+            )
+        return self._item_similarity
+
     def fit(self, df: pd.DataFrame):
         """Method for fitting the model, based on item-item similarity.
 

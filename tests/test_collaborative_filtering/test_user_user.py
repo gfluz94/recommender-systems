@@ -71,7 +71,7 @@ class TestUserUserCollaborativeFiltering(object):
         }
 
         # ASSERT
-        model._user_similarity == expected_user_similarity
+        model.user_similarity == expected_user_similarity
 
     def test_fitRunsCorrectlyWithMSE(self, movielens_sample: pd.DataFrame):
         # OUTPUT
@@ -96,7 +96,7 @@ class TestUserUserCollaborativeFiltering(object):
         }
 
         # ASSERT
-        model._user_similarity == expected_user_similarity
+        model.user_similarity == expected_user_similarity
 
     def test_fitRunsCorrectlyWithIoUAndWithoutRatings(
         self, movielens_sample: pd.DataFrame
@@ -122,7 +122,7 @@ class TestUserUserCollaborativeFiltering(object):
         }
 
         # ASSERT
-        model._user_similarity == expected_user_similarity
+        model.user_similarity == expected_user_similarity
 
     def test_predictRaisesModelNotFittedYet(self):
         model = UserUserCollaborativeFiltering(

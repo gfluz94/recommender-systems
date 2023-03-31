@@ -71,7 +71,7 @@ class TestItemItemCollaborativeFiltering(object):
         expected_item_similarity = {1: [2, 3], 2: [1, 4], 3: [1, 4], 4: [2, 3]}
 
         # ASSERT
-        model._item_similarity == expected_item_similarity
+        model.item_similarity == expected_item_similarity
 
     def test_fitRunsCorrectlyWithMSE(self, movielens_sample: pd.DataFrame):
         # OUTPUT
@@ -96,7 +96,7 @@ class TestItemItemCollaborativeFiltering(object):
         expected_item_similarity = {1: [3, 2], 2: [1, 4], 3: [1, 4], 4: [3, 2]}
 
         # ASSERT
-        model._item_similarity == expected_item_similarity
+        model.item_similarity == expected_item_similarity
 
     def test_fitRunsCorrectlyWithIoUAndWithoutRatings(
         self, movielens_sample: pd.DataFrame
@@ -122,7 +122,7 @@ class TestItemItemCollaborativeFiltering(object):
         expected_item_similarity = {1: [2, 3], 2: [1, 4], 3: [1, 4], 4: [2, 3]}
 
         # ASSERT
-        model._item_similarity == expected_item_similarity
+        model.item_similarity == expected_item_similarity
 
     def test_predictRaisesModelNotFittedYet(self):
         model = ItemItemCollaborativeFiltering(

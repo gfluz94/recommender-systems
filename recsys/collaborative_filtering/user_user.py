@@ -91,6 +91,15 @@ class UserUserCollaborativeFiltering(object):
 
         logger.info("User-User Collaborative Filtering model instantiated...")
 
+    @property
+    def user_similarity(self) -> Dict[int, List[int]]:
+        """Dictionary containing list of most similar users (values) to a user of interest (keys)."""
+        if self._user_similarity is None:
+            raise ModelNotFittedYet(
+                "Model needs to be trained... Please call `.fit()` first!"
+            )
+        return self._user_similarity
+
     def fit(self, df: pd.DataFrame):
         """Method for fitting the model, based on user-user similarity.
 
