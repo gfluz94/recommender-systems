@@ -55,8 +55,12 @@ def split_dataset(
         df_sets = []
         cum_size = 0.0
         for size in sets_size[:-1]:
+            df_sets.append(
+                df_.iloc[
+                    int(cum_size * total_length) : int((cum_size + size) * total_length)
+                ]
+            )
             cum_size += size
-            df_sets.append(df_.iloc[: int(cum_size * total_length)])
         df_sets.append(df_.iloc[int(cum_size * total_length) :])
 
     return tuple(df_sets)
