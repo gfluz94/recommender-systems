@@ -74,7 +74,7 @@ def test_get_outliers_expectedOutput():
 def test_remove_extreme_movies_and_users_expectedOutput(dummy_ratings_df: pd.DataFrame):
     # OUTPUT
     output = remove_extreme_movies_and_users(
-        ratings_df=dummy_ratings_df,
+        ratings_df=dummy_ratings_df.drop(columns="timestamp"),
         movie_id_column="movieId",
         user_id_column="userId",
         movie_ratings_boundaries=(2, None),
