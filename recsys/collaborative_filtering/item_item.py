@@ -1,7 +1,6 @@
 __all__ = ["ItemItemCollaborativeFiltering"]
 
 from typing import Dict, List, Optional, Tuple
-from functools import reduce
 from tqdm import tqdm
 import numpy as np
 import pandas as pd
@@ -113,9 +112,7 @@ class ItemItemCollaborativeFiltering(object):
             self._ratings_by_item_user = self._sim_computer.get_outcome_by_ref_and_agg(
                 df
             )
-            for user in set(
-                reduce(lambda a, b: a + b, list(self._users_by_item.values()))
-            ):
+            for user in df[self._user_id_field_name].unique():
                 self._best_rated_item_by_user[user] = sorted(
                     [
                         (i, r)
@@ -125,12 +122,12 @@ class ItemItemCollaborativeFiltering(object):
                     key=lambda x: -x[1],
                 )[0][0]
         else:
-            for user in set(
-                reduce(lambda a, b: a + b, list(self._users_by_item.values()))
-            ):
-                self._best_rated_item_by_user[user] = [
-                    i for (i, u), r in self._ratings_by_item_user.items() if u == user
-                ][-1]
+            for user in df[self._user_id_field_name].unique():
+                self._best_rated_item_by_user[user] = (
+                    df.loc[
+                        df[self._user_id_field_name] == user, self._item_id_field_name
+                    ]
+                ).iloc[-1]
 
         return self
 
