@@ -28,3 +28,7 @@ class ModelNotFittedYet(Exception):
 
 class UserNotPresent(Exception):
     pass
+
+
+class ColdStartProblem(Exception):
+    pass
