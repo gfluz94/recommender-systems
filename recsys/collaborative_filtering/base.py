@@ -1,5 +1,8 @@
 __all__ = ["SimilarityMethod", "SimilarityComputer"]
 
+from joblib import Parallel, delayed
+from multiprocessing import cpu_count
+from functools import reduce
 from typing import Callable, Dict, List, Optional, Tuple, Union
 from tqdm import tqdm
 from enum import Enum
@@ -43,6 +46,7 @@ class SimilarityComputer(object):
         ref_col: str,
         agg_col: str,
         rating_col: Optional[str] = None,
+        n_jobs: Optional[int] = None,
     ) -> None:
         """Constructor method for SimilarityComputer.
 
@@ -50,10 +54,19 @@ class SimilarityComputer(object):
             ref_col (str): Column on top of which similarity is computed.
             agg_col (str): Column that contains the evaluation from the `ref_col`.
             rating_col (optional, str): Column containing the ratings, if available. Defaults to None.
+            n_jobs (int, optional): Enabling parallelization for huge datasets.
         """
         self._ref_col = ref_col
         self._agg_col = agg_col
         self._rating_col = rating_col
+        if n_jobs is None or n_jobs == -1:
+            self._n_jobs = max(1, cpu_count() - 1)
+        else:
+            if n_jobs == 0:
+                raise AttributeError(
+                    "`n_jobs` must be either a positive integer or -1 indicating all cores."
+                )
+            self._n_jobs = min(n_jobs, max(1, cpu_count() - 1))
         self._binary = False
         if not self._rating_col:
             self._binary = True
@@ -100,12 +113,29 @@ class SimilarityComputer(object):
             if self._binary:
                 output = "binary_outcome"
                 df_[output] = 1.0
-            self._outcome_by_ref_and_agg = {
-                (int(ref), int(agg)): out
-                for ref, agg, out in df_[
-                    [self._ref_col, self._agg_col, output]
-                ].values.tolist()
-            }
+
+            df_ = df_[[self._ref_col, self._agg_col, output]].values
+            batch_size = len(df_) // self._n_jobs
+            batches = [
+                df_[i * batch_size : (i + 1) * batch_size, :]
+                if i < self._n_jobs - 1
+                else df_[i * batch_size :, :]
+                for i in range(self._n_jobs)
+            ]
+
+            def get_outcome_dictionary(
+                outcome_array: np.ndarray,
+            ) -> Dict[Tuple[int, int], float]:
+                user_movie_ratings = {}
+                for ref, agg, out in outcome_array:
+                    user_movie_ratings[(ref, agg)] = out
+                return user_movie_ratings
+
+            results = Parallel(n_jobs=self._n_jobs, prefer="threads")(
+                delayed(get_outcome_dictionary)(batch) for batch in batches
+            )
+
+            self._outcome_by_ref_and_agg = reduce(lambda a, b: a | b, results)
         return self._outcome_by_ref_and_agg
 
     def find_most_similar(
