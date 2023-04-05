@@ -1,3 +1,4 @@
+from typing import Dict, Tuple
 import os
 import pandas as pd
 import numpy as np
@@ -21,6 +22,21 @@ def dummy_ratings_df() -> pd.DataFrame:
 def movielens_sample() -> pd.DataFrame:
     wdir = os.path.abspath(os.curdir)
     return pd.read_csv(os.path.join(wdir, "tests", "movielens_sample.csv"))
+
+
+@pytest.fixture(scope="module")
+def movielens_mappings(
+    movielens_sample: pd.DataFrame,
+) -> Tuple[Dict[int, int], Dict[int, int]]:
+    user_mapping = {
+        user_id: idx
+        for idx, user_id in enumerate(movielens_sample["userId"].unique().tolist())
+    }
+    item_mapping = {
+        item_id: idx
+        for idx, item_id in enumerate(movielens_sample["movieId"].unique().tolist())
+    }
+    return (user_mapping, item_mapping)
 
 
 @pytest.fixture(scope="module")
