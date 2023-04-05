@@ -95,11 +95,6 @@ class EmbeddingMatrixFactorization(tf.keras.models.Model):
         return self._item_mapping
 
     @property
-    def continuous_ratings(self) -> bool:
-        """(bool) Whether or not target variable is continuous (rating based)"""
-        return self._continuous_ratings
-
-    @property
     def use_dense_layers(self) -> bool:
         """(bool) Whether or not to use dense layers after embedding layers"""
         return self._use_dense_layers
