@@ -32,3 +32,11 @@ class UserNotPresent(Exception):
 
 class ColdStartProblem(Exception):
     pass
+
+
+class NotA2DArray(Exception):
+    pass
+
+
+class FeaturesNotAllowedForMatrixFactorization(Exception):
+    pass
