@@ -1,4 +1,7 @@
-__all__ = ["create_data_generator", "convert_dataframe_into_train_and_validation_generators"]
+__all__ = [
+    "create_data_generator",
+    "convert_dataframe_into_train_and_validation_generators",
+]
 
 from typing import Dict, Tuple
 import numpy as np
@@ -78,7 +81,7 @@ def convert_dataframe_into_train_and_validation_generators(
     df_["user_index"] = df_[user_id_field_name].map(user_to_index_mapping)
     df_["item_index"] = df_[item_id_field_name].map(item_to_index_mapping)
 
-    df_ = df_.sample(frac=1.0, replace=False, seed=seed)
+    df_ = df_.sample(frac=1.0, replace=False, random_state=seed)
     df_train = df_.iloc[: -int(len(df_) * val_size)]
     df_val = df_.iloc[-int(len(df_) * val_size) :]
 
