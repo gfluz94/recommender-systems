@@ -1,6 +1,8 @@
 from typing import Dict, Tuple
 import pandas as pd
 import numpy as np
+import tensorflow as tf
+import random
 import pytest
 
 from recsys.matrix_factorization.data import (
@@ -16,6 +18,9 @@ def test_convert_dataframe_into_train_and_validation_generators(
 ):
     # OUTPUT
     user_mapping, item_mapping = movielens_mappings
+    np.random.seed(99)
+    tf.random.set_seed(99)
+    random.seed(99)
     train_gen, val_gen = convert_dataframe_into_train_and_validation_generators(
         df=movielens_sample,
         user_id_field_name="userId",
@@ -32,17 +37,16 @@ def test_convert_dataframe_into_train_and_validation_generators(
         break
     for (user_val, movie_val), y_val in val_gen.take(1):
         break
-    print(user_val, movie_val, y_val)
 
     # EXPECTED
-    expected_user_train = np.array([1.0, 0.0, 0.0, 5.0, 5.0])
-    expected_movie_train = np.array([284, 82, 219, 436, 505.0])
-    expected_y_train = np.array([3.5, 4.0, 5.0, 0.5, 5.0])
-    expected_user_val = np.array([0.0, 5.0, 4.0, 3.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+    expected_user_train = np.array([1.0, 0.0, 5.0, 5.0, 0])
+    expected_movie_train = np.array([291.0, 23.0, 480.0, 114.0, 61])
+    expected_y_train = np.array([3.5, 5.0, 2.0, 4.5, 3.0])
+    expected_user_val = np.array([5.0, 0.0, 5.0, 0.0, 0.0, 0.0, 4.0, 0.0, 5.0, 1.0])
     expected_movie_val = np.array(
-        [119.0, 318.0, 430.0, 120.0, 181.0, 98.0, 114.0, 187.0, 18.0, 31.0]
+        [143.0, 94.0, 461.0, 161.0, 20.0, 33.0, 408.0, 274.0, 529.0, 305]
     )
-    expected_y_val = np.array([1.0, 0.5, 3.0, 3.5, 5.0, 3.0, 2.0, 5.0, 5.0, 5.0])
+    expected_y_val = np.array([0.5, 3.0, 4.0, 5.0, 4.0, 4.0, 4.0, 2.0, 5.0, 4.5])
 
     # ASSERT
     np.testing.assert_array_almost_equal(user_train.numpy(), expected_user_train)
@@ -56,6 +60,8 @@ def test_convert_dataframe_into_train_and_validation_generators(
 class Testcreate_data_generator:
     def test_raisesNotA2DArray(self):
         np.random.seed(99)
+        tf.random.set_seed(99)
+        random.seed(99)
         X = np.random.normal(size=(100, 3, 1))
         y = np.random.normal(size=(100,))
         with pytest.raises(NotA2DArray):
@@ -67,6 +73,8 @@ class Testcreate_data_generator:
 
     def test_raisesFeaturesNotAllowedForMatrixFactorization(self):
         np.random.seed(99)
+        tf.random.set_seed(99)
+        random.seed(99)
         X = np.random.normal(size=(100, 3))
         y = np.random.normal(size=(100,))
         with pytest.raises(FeaturesNotAllowedForMatrixFactorization):
@@ -78,6 +86,8 @@ class Testcreate_data_generator:
 
     def test_outputCorrect(self):
         np.random.seed(99)
+        tf.random.set_seed(99)
+        random.seed(99)
         X = np.random.normal(size=(100, 2))
         y = np.random.normal(size=(100,))
 
@@ -92,13 +102,13 @@ class Testcreate_data_generator:
 
         # EXPECTED
         expected_x_1 = np.array(
-            [1.3966199, -1.67850204, 0.50265173, -0.29510767, 0.2668912]
+            [-3.07945486, 1.16363973, -2.13970379, -1.0230944, -0.19028807]
         )
         expected_x_2 = np.array(
-            [0.03221944, 0.18310987, 0.20955906, -0.361676, -0.15874187]
+            [0.75522325, -1.01666722, 0.86132265, 0.4947723, -0.80115937]
         )
         expected_y = np.array(
-            [0.51966199, 0.47986554, 1.16540462, -0.35728133, 0.8017332]
+            [0.72210054, -0.47955274, 0.76488605, 0.68630264, -1.90146612]
         )
 
         # ASSERT
