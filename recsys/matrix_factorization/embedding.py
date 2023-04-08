@@ -217,7 +217,7 @@ class EmbeddingMatrixFactorization(tf.keras.models.Model):
             raise ColdStartProblem(f"User {user_id} not in the training data!")
         items = tf.range(
             start=min(self._item_mapping.values()),
-            limit=max(self._item_mapping.values()),
+            limit=max(self._item_mapping.values()) + 1,
         )
         user = tf.constant(items.shape[0] * [user])
         ratings = self.call((user, items)).numpy()
