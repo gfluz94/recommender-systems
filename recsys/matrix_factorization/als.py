@@ -127,8 +127,8 @@ class ALS(object):
         mse = []
         for u, i, y in zip(users_batch, items_batch, ratings_batch):
             predicted_rating = self._compute_rating(
-                user_index=self._user_mapping[u.numpy()],
-                item_index=self._item_mapping[i.numpy()],
+                user_index=u.numpy(),
+                item_index=i.numpy(),
             )
             mse.append(tf.square(predicted_rating - y))
 
@@ -147,12 +147,8 @@ class ALS(object):
         Returns:
             float: MSE for the current batch.
         """
-        unique_users = set(
-            map(lambda x: self._user_mapping[x], users_batch.numpy().tolist())
-        )
-        unique_items = set(
-            map(lambda x: self._item_mapping[x], items_batch.numpy().tolist())
-        )
+        unique_users = set(users_batch.numpy().tolist())
+        unique_items = set(items_batch.numpy().tolist())
         with tf.GradientTape() as tape:
             mse = self._compute_mse(
                 users_batch=users_batch,
@@ -230,7 +226,7 @@ class ALS(object):
         user = self._user_mapping.get(user_id, None)
         if not user:
             raise ColdStartProblem(f"User {user_id} not in the training data!")
-        return self.user_embeddings[user]
+        return self.user_embeddings[user].numpy().reshape(-1)
 
     def get_item_embedding(self, item_id: int) -> np.ndarray:
         """Method for retrieving the latent factors for a given item.
@@ -247,7 +243,7 @@ class ALS(object):
         item = self._item_mapping.get(item_id, None)
         if not item:
             raise ColdStartProblem(f"Item {item_id} not in the training data!")
-        return self.user_embeddings[item]
+        return self.user_embeddings[item].numpy().reshape(-1)
 
     def predict_rating_for_user_item(self, user_id: int, item_id: int) -> float:
         """Method for retrieving a rating/score for a (user_id, item_id) pair.
@@ -298,7 +294,7 @@ class ALS(object):
         idx2item = {idx: item_id for item_id, idx in self._item_mapping.items()}
         output = pd.DataFrame(
             {
-                "item_id": [idx2item[idx] for idx in items.numpy().tolist()],
+                "item_id": [idx2item[idx] for idx in items.tolist()],
                 "score": ratings,
             }
         )
