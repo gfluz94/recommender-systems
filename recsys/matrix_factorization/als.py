@@ -297,7 +297,7 @@ class ALS(object):
         output = pd.DataFrame(
             {
                 "item_id": [idx2item[idx] for idx in items.numpy().tolist()],
-                "score": ratings.squeeze().tolist(),
+                "score": ratings,
             }
         )
         output = output.sort_values("score", ascending=False)
