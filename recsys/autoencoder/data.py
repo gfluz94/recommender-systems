@@ -76,7 +76,7 @@ class UserItemMatrix(tf.keras.utils.Sequence):
         retrieval = self._user_arrays.get(user, None)
         if retrieval is None:
             items = self._users_items[user]
-            items_idx = list(map(lambda x: self._item_mapping.get(x), items))
+            items_idx = list(map(self._item_mapping.get, items))
             retrieval = np.zeros((1, self._total_items))
             retrieval[:, items_idx] = 1.0
             self._user_arrays[user] = retrieval
