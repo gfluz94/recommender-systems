@@ -90,7 +90,9 @@ class VariationalAutoEncoder(tf.keras.models.Model):
         output = tf.keras.layers.Dense(self._input_dim, activation="sigmoid")(x)
         return tf.keras.models.Model(inputs=inputs, outputs=output)
 
-    def call(self, inputs: tf.Tensor, training=None, mask=None) -> Tuple[tf.Tensor, tf.Tensor, tf.Tensor]:
+    def call(
+        self, inputs: tf.Tensor, training=None, mask=None
+    ) -> Tuple[tf.Tensor, tf.Tensor, tf.Tensor]:
         """Method to perform the forward pass on the variational autoencoder.
 
         Args:
