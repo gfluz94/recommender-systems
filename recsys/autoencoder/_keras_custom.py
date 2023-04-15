@@ -105,6 +105,18 @@ class VariationalAutoEncoder(tf.keras.models.Model):
         reconstruction = self._decoder(Z)
         return reconstruction, mean_vector, log_var_vector
 
+    def get_latent_factors(self, inputs: tf.Tensor) -> tf.Tensor:
+        """Method to perform the forward pass on the encoder of the variational autoencoder.
+
+        Args:
+            inputs (tf.Tensor): Tensor of one-hot-encoded user vectors.
+
+        Returns:
+            tf.Tensor: Lower-dimension dense representation of the input vector.
+        """
+        Z, *_ = self._encoder(inputs)
+        return Z
+
 
 class ReconstructionKLLoss(tf.keras.losses.Loss):
     """Loss function on top of keras framework to compute the needed loss for variational autoencoders.
