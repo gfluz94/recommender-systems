@@ -108,17 +108,17 @@ class VariationalAutoEncoder(tf.keras.models.Model):
         reconstruction = self._decoder(Z)
         return reconstruction
 
-    def train_step(self, inputs: Tuple[tf.Tensor]) -> Dict[str, float]:
+    def train_step(self, data: Tuple[tf.Tensor]) -> Dict[str, float]:
         """Method to perform a custom training loop step, due to the KL Divergence Loss.
 
         Args:
-            inputs (Tuple[tf.Tensor]): Tuple of tensors of one-hot-encoded user vectors.
+            data (Tuple[tf.Tensor]): Tuple of tensors of one-hot-encoded user vectors.
 
         Returns:
             Dict[str, float]: Dictionary of {loss function name: loss value}
         """
-        X = inputs[0]
-        y = inputs[1]
+        X = data[0]
+        y = data[1]
         with tf.GradientTape() as tape:
             Z, mean_vector, log_var_vector = self._encoder(X)
             reconstruction = self._decoder(Z)
