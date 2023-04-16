@@ -1,4 +1,4 @@
-from typing import List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 import tensorflow as tf
 
 
@@ -56,6 +56,9 @@ class VariationalAutoEncoder(tf.keras.models.Model):
         self._encoder = self._get_encoder()
         self._decoder = self._get_decoder()
 
+        self._loss = ReconstructionKLLoss(binary=True)
+        self._loss_tracker = tf.keras.metrics.Mean(name="loss")
+
     def _get_encoder(self) -> tf.keras.models.Model:
         """Method that builds the encoder.
 
@@ -101,9 +104,31 @@ class VariationalAutoEncoder(tf.keras.models.Model):
         Returns:
             Tuple[tf.Tensor, tf.Tensor, tf.Tensor]: Reconstructed input, (latent factors' mean vector and latent factors' log(Var) vector.
         """
-        Z, mean_vector, log_var_vector = self._encoder(inputs)
+        Z, *_ = self._encoder(inputs)
         reconstruction = self._decoder(Z)
-        return reconstruction, mean_vector, log_var_vector
+        return reconstruction
+
+    def train_step(self, inputs: Tuple[tf.Tensor]) -> Dict[str, float]:
+        """Method to perform a custom training loop step, due to the KL Divergence Loss.
+
+        Args:
+            inputs (Tuple[tf.Tensor]): Tuple of tensors of one-hot-encoded user vectors.
+
+        Returns:
+            Dict[str, float]: Dictionary of {loss function name: loss value}
+        """
+        X = inputs[0]
+        y = inputs[1]
+        with tf.GradientTape() as tape:
+            Z, mean_vector, log_var_vector = self._encoder(X)
+            reconstruction = self._decoder(Z)
+            total_loss = self._loss(y, [reconstruction, mean_vector, log_var_vector])
+        grads = tape.gradient(total_loss, self.trainable_weights)
+        self.optimizer.apply_gradients(zip(grads, self.trainable_weights))
+        self._loss_tracker.update_state(total_loss)
+        return {
+            "loss": self._loss_tracker.result(),
+        }
 
     def get_latent_factors(self, inputs: tf.Tensor) -> tf.Tensor:
         """Method to perform the forward pass on the encoder of the variational autoencoder.
@@ -151,7 +176,9 @@ class ReconstructionKLLoss(tf.keras.losses.Loss):
         Returns:
             tf.Tensor: Loss value.
         """
-        reconstruction, mean_vector, log_var_vector = y_pred
+        reconstruction = y_pred[0]
+        mean_vector = y_pred[1]
+        log_var_vector = y_pred[2]
         reconstruction_loss = self._reconstruction_loss(y_true, reconstruction)
         kl = -0.5 * (
             1 + log_var_vector - tf.square(mean_vector) - tf.exp(log_var_vector)
