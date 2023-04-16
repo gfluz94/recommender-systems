@@ -163,7 +163,7 @@ class UserVectorVAE(object):
             )
         if np.ndim(inputs) == 1:
             inputs = np.reshape(inputs, (1, -1))
-        return self._get_autoencoder().get_latent_factors().numpy().squeeze()
+        return self._get_autoencoder().get_latent_factors(inputs).numpy().squeeze()
 
     def recommend_items(
         self,
