@@ -213,7 +213,6 @@ class TestUserVectorAutoEncoder:
         )
         autoencoder.fit(sequence, epochs=1)
         embedding = autoencoder.get_user_embedding(sequence[0][0][0, :])
-        print(embedding.tolist())
 
         # EXPECTED
         expected_embedding = np.array([0.0, 0.0, 0.0, 0.0, 0.38587772846221924])
