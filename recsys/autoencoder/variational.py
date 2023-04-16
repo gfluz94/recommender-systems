@@ -6,7 +6,6 @@ import tensorflow as tf
 
 from recsys.autoencoder._keras_custom import (
     VariationalAutoEncoder,
-    ReconstructionKLLoss,
 )
 from recsys.utils.errors import ModelNotFittedYet
 
@@ -98,7 +97,6 @@ class UserVectorVAE(object):
             )
             self._autoencoder.compile(
                 optimizer=tf.keras.optimizers.Adam(learning_rate=self._learning_rate),
-                loss=ReconstructionKLLoss(binary=True),
             )
         return self._autoencoder
 
